@@ -9,15 +9,11 @@ import {
     restartWorkerGroup
 } from './api/criblClient.js';
 
-console.log('Starting Cribl MCP Server...');
-
-// Validate config on startup
+// Validate config on startup (errors are logged to stderr in config.ts)
 try {
     config.cribl.baseUrl;
     config.cribl.authToken;
-    console.log('Configuration loaded successfully.');
 } catch (error) {
-    console.error('FATAL: Configuration error:', error);
     process.exit(1);
 }
 
@@ -25,9 +21,6 @@ const server = new McpServer({
     name: config.server.name,
     version: config.server.version,
 });
-
-// Log using config directly
-console.log(`Initialized MCP Server: ${config.server.name} v${config.server.version}`);
 
 // --- Tool Definitions ---
 
@@ -39,7 +32,6 @@ server.tool(
     // No arguments, provide empty schema object
     {},
     async () => { // No args or extra needed
-        console.log('[Tool Call] cribl_getPipelines');
         const result = await getPipelines();
         if (!result.success) {
             console.error('[Tool Error] cribl_getPipelines:', result.error);
@@ -48,7 +40,6 @@ server.tool(
                 content: [{ type: 'text', text: `Error fetching pipelines: ${result.error}` }],
             };
         }
-        console.log(`[Tool Success] cribl_getPipelines: Found ${result.data?.length || 0} pipelines.`);
         return {
             content: [{ type: 'text', text: JSON.stringify(result.data || [], null, 2) }],
         };
@@ -60,7 +51,6 @@ server.tool(
     // No arguments, provide empty schema object
     {},
     async () => { // No args or extra needed
-        console.log('[Tool Call] cribl_getSources');
         const result = await getSources();
         if (!result.success) {
             console.error('[Tool Error] cribl_getSources:', result.error);
@@ -69,7 +59,6 @@ server.tool(
                 content: [{ type: 'text', text: `Error fetching sources: ${result.error}` }],
             };
         }
-        console.log(`[Tool Success] cribl_getSources: Found ${result.data?.length || 0} sources.`);
         return {
             content: [{ type: 'text', text: JSON.stringify(result.data || [], null, 2) }],
         };
@@ -88,7 +77,6 @@ server.tool(
     async (args: ValidatedArgs<typeof SetPipelineConfigArgsShape>) => { // Only validated args are needed
         // Args are validated and passed as the first parameter
         const { pipelineId, config: pipelineConfig } = args;
-        console.log(`[Tool Call] cribl_setPipelineConfig for ID: ${pipelineId}`);
 
         const result = await setPipelineConfig(pipelineId, pipelineConfig);
 
@@ -100,7 +88,6 @@ server.tool(
             };
         }
 
-        console.log(`[Tool Success] cribl_setPipelineConfig for ID: ${pipelineId}`);
         return {
             content: [{ type: 'text', text: `Successfully updated config for pipeline ${pipelineId}. Response: ${JSON.stringify(result.data, null, 2)}` }],
         };
@@ -118,7 +105,6 @@ server.tool(
     async (args: ValidatedArgs<typeof RestartWorkerGroupArgsShape>) => { // Only validated args are needed
         // Args are validated and passed as the first parameter
         const { group } = args;
-        console.log(`[Tool Call] cribl_restartWorkerGroup for group: ${group}`);
 
         const result = await restartWorkerGroup(group);
 
@@ -130,7 +116,6 @@ server.tool(
             };
         }
 
-        console.log(`[Tool Success] cribl_restartWorkerGroup for group: ${group}`);
         return {
             content: [{ type: 'text', text: result.data?.message || `Successfully initiated restart for group ${group}.` }],
         };
@@ -142,9 +127,8 @@ server.tool(
 async function main() {
     try {
         const transport = new StdioServerTransport();
-        console.log('Connecting transport...');
         await server.connect(transport);
-        console.log('MCP Server is connected and listening via stdio.');
+        console.error('MCP Server is connected and listening via stdio.');
     } catch (error) {
         console.error('Failed to connect MCP server:', error);
         process.exit(1);
