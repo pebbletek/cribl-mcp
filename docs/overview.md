@@ -46,12 +46,61 @@ The following tools are exposed by this server:
         *   `pipelineId` (string, required): The ID of the pipeline to update (obtainable from `cribl_getPipelines`).
         *   `config` (object, required): The pipeline configuration payload expected by the API, typically structured as `{ id: 'pipeline-id', conf: { ... actual config ... } }`. Use `cribl_getPipelineConfig` to see the expected structure.
     *   Output: Success message or error details.
-*   `cribl_restartWorkerGroup`: Restarts workers (likely *all* workers managed by the Leader).
-    *   Arguments: None
+*   `cribl_restartWorkerGroup`: Restarts workers within a specific Worker Group/Fleet.
+    *   Arguments:
+        *   `random_string` (string, required): A dummy string parameter required by the MCP framework for tools without specific arguments. Its value is ignored.
     *   Output: Success message or error details.
-    *   **Warning:** Uses the documented path `PATCH /api/v1/master/workers/restart`. Verify its scope (all workers vs. specific group) in your environment. A 200 OK response indicates the request was accepted; verify restart via Cribl UI/logs.
+    *   **Note:** The specific group restarted might depend on the client library's default group context. The underlying API call (`PATCH /api/v1/master/workers/restart`) might affect all workers; verify scope in your environment.
 
-*~~`cribl_restartWorkerGroup`~~*: (Currently disabled - API path needs verification for Cloud/specific deployments)
-    *   ~~Arguments:~~~
-        *   ~~`groupName` (string, required): The worker group name to restart.~~~
-    *   ~~Output: Success message or error details.~~ 
+
+## Future Enhancements
+
+The following tools represent potential future capabilities for this MCP server, based on common Cribl workflows:
+
+*   **`cribl_testPipelineConfig`**
+    *   Description: Validates a pipeline config before deployment.
+    *   Why: Prevents pushing broken or invalid configurations, especially valuable in automated workflows.
+
+*   **`cribl_versionControl`**
+    *   Description: Detects if version control is enabled.
+    *   Why: Determines if commit and deploy steps are required.
+
+*   **`cribl_commitPipeline`**
+    *   Description: Commits staged configuration changes.
+    *   Why: Part of the standard version control workflow.
+
+*   **`cribl_deployPipeline`**
+    *   Description: Deploys the latest committed configuration to a specific worker group.
+    *   Why: Enables full lifecycle management via MCP.
+
+*   **`cribl_getPipelineStats`**
+    *   Description: Retrieve real-time or recent metrics for a given pipeline (e.g., throughput, errors).
+    *   Why: Adds observability and supports feedback loops.
+
+*   **`cribl_listPacks`**
+    *   Description: Lists installed Cribl Packs (reusable processing logic).
+    *   Why: Provides visibility into shared assets.
+
+*   **`cribl_listRoutes`**
+    *   Description: Fetches all active Routes.
+    *   Why: Useful for understanding data flow.
+
+*   **`cribl_restartPipeline`**
+    *   Description: Restarts a specific pipeline without restarting the entire worker group.
+    *   Why: Minimises disruption for targeted fixes.
+
+*   **`cribl_getHealthStatus`**
+    *   Description: Returns overall instance health (CPU/memory usage, errors, uptime).
+    *   Why: Supports diagnostics and automated monitoring/alerting.
+
+*   **`cribl_listDestinations`**
+    *   Description: Enumerates all configured Destinations.
+    *   Why: Helps validate data routing and troubleshoot outputs.
+
+*   **`cribl_runSearch`**
+    *   Description: Executes a search query over recent data (if Cribl Search is enabled).
+    *   Why: Enables powerful diagnostics and AI-assisted analysis.
+
+*   **`cribl_clonePipeline`**
+    *   Description: Creates a new pipeline by cloning an existing one.
+    *   Why: Speeds up template-based workflows and testing variations. 

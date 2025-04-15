@@ -1,30 +1,65 @@
 # Cribl MCP Server
 
-A Model Context Protocol (MCP) server to bridge AI interactions with a Cribl API.
+A Model Context Protocol (MCP) server that enables AI interactions with the Cribl API.
 
-## Setup
+This server allows AI clients to discover and invoke data operations from a Cribl deployment, using standardised MCP tooling.
 
-1.  Clone the repository.
-2.  Install dependencies: `npm install`
-3.  Create a `.env` file from `.env.example`.
-4.  Fill in your Cribl Base URL (`CRIBL_BASE_URL`).
-5.  Configure Authentication in `.env`:
-    *   Set `CRIBL_AUTH_TYPE` to `cloud` or `local`.
-    *   If `cloud`: Provide `CRIBL_CLIENT_ID` and `CRIBL_CLIENT_SECRET` from your Cribl.Cloud API Credentials.
-    *   If `local`: Provide `CRIBL_USERNAME` and `CRIBL_PASSWORD` for a local user on your customer-managed instance.
-6.  Run the server:
-    *   Development: `npm run dev`
-    *   Production: `npm run build && npm run start`
+**For detailed documentation on configuration, usage, and available tools, please see the [`docs/`](./docs/) directory.**
 
-## Usage
+## Getting Started
 
-Connect an MCP client (like the MCP Inspector or a compatible AI chat interface) to the server's standard I/O (using `npm run start` or `node dist/server.js` as the command).
+You can either install and run locally, or execute instantly via `npx`:
 
-Available tools will be listed by the client upon connection.
+### Quick Start with `npx`
 
-## Authentication Details
+```bash
+npx @pebble/cribl-mcp
+```
 
-The server automatically handles acquiring and refreshing API tokens based on the `CRIBL_AUTH_TYPE` set in your `.env` file.
+**Note:** Running `npx` requires essential environment variables (like `CRIBL_BASE_URL` and authentication details) to be set either in your environment or passed directly on the command line for the server to connect successfully.
 
-*   **Cloud:** Uses Client ID/Secret to obtain a 24-hour bearer token from Cribl's OAuth endpoint and refreshes it automatically before expiry.
-*   **Local:** Uses Username/Password to log in via the `/api/v1/auth/login` endpoint and attempts to refresh the token periodically (currently hourly).
+See [`docs/usage.md`](./docs/usage.md) for advanced `npx` usage including configuring for your MCP client, and required variables.
+
+### Local Development
+
+1.  Clone the repo:
+    ```bash
+    git clone https://github.com/yourorg/cribl-mcp.git # Replace with your repo URL
+    cd cribl-mcp
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Copy the `.env.example` file and populate the required values:
+    ```bash
+    cp .env.example .env
+    ```
+
+See [`docs/configuration.md`](./docs/configuration.md) for details on environment variables and authentication, and [`docs/usage.md`](./docs/usage.md) for running the server.
+
+## Available Tools
+
+This server provides tools to interact with Cribl, including:
+
+*   Listing Worker Groups/Fleets
+*   Getting/Setting Pipeline configurations
+*   Getting Source configurations
+*   Restarting Worker Groups
+
+For a detailed list and usage instructions, see [`docs/usage.md`](./docs/usage.md).
+
+## Example Usage (Prompts)
+
+Once connected via an MCP client (like Cursor), you can interact with your Cribl instance using natural language prompts that leverage the available tools. Here are some examples:
+
+*   "List all the worker groups for the 'edge' product." (`-> mcp_Cribl_cribl_listWorkerGroups(productType='edge')`)
+*   "Show me the pipelines in the 'default' group." (`-> mcp_Cribl_cribl_getPipelines(groupName='default')`)
+*   "Get the configuration for the 'main' pipeline in the 'stream-group'." (`-> mcp_Cribl_cribl_getPipelineConfig(pipelineId='main', groupName='stream-group')`)
+*   "What sources are configured in the 'prod-edge' fleet?" (`-> mcp_Cribl_cribl_getSources(groupName='prod-edge')`)
+*   "Restart the default worker group." (`-> mcp_Cribl_cribl_restartWorkerGroup(random_string='restart')`)
+
+## License
+
+MIT
+

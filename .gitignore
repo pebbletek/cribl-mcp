@@ -127,3 +127,6 @@ dist/
 
 # Cribl MCP Specific
 *.db
+
+# Cursor
+.cursor/
