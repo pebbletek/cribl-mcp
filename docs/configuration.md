@@ -23,11 +23,6 @@ Create a `.env` file in the project root (by copying `.env.example`) and populat
 *   `CRIBL_USERNAME`: The username for a local Cribl user with API access permissions.
 *   `CRIBL_PASSWORD`: The password for the specified local Cribl user.
 
-### Optional
-
-*   `FASTMCP_LOG_LEVEL`: Sets the logging level for the MCP server. Defaults to `INFO`. Options: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`.
-*   `PORT`: The port on which the MCP server will listen if running in a mode that exposes an HTTP endpoint (not the default stdio mode). Defaults to `8000`.
-
 ## Authentication Modes
 
 *   **`cloud`**: Uses Client ID and Client Secret credentials, typically for Cribl.Cloud deployments. The server will automatically handle fetching and refreshing bearer tokens.
@@ -49,10 +44,4 @@ CRIBL_CLIENT_SECRET=your_client_secret
 # Local Auth Credentials (only needed if CRIBL_AUTH_TYPE=local)
 CRIBL_USERNAME=
 CRIBL_PASSWORD=
-
-# Optional: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-FASTMCP_LOG_LEVEL=INFO
-
-# Optional: Port for HTTP modes (not stdio)
-# PORT=8000
 ``` 
