@@ -14,7 +14,7 @@ The easiest way to run the server without cloning is using `npx`:
 npx @pebble/cribl-mcp
 ```
 
-To provide environment variables directly:
+To provide environment variables directly (one line commands):
 
 ```bash
 # Example for Cloud Auth
