@@ -1,6 +1,6 @@
 {
   "name": "cribl-mcp-server",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "MCP Server for Cribl API Interaction",
   "main": "dist/server.js",
   "type": "module",
