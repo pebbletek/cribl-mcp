@@ -1,8 +1,11 @@
 {
-  "name": "cribl-mcp-server",
+  "name": "cribl-mcp",
   "version": "0.1.3",
   "description": "MCP Server for Cribl API Interaction",
   "main": "dist/server.js",
+  "bin": {
+    "cribl-mcp": "./dist/server.js"
+  },
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -21,6 +24,9 @@
   ],
   "author": "Your Name or Org",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://github.com/pebbletek/cribl-mcp/issues"
   },
