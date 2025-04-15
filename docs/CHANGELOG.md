@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.1.2] - 2025-04-15
 ### Added
 - Dynamic authentication supporting Cribl.Cloud (Client ID/Secret) and Local (Username/Password) via `.env` settings (`CRIBL_AUTH_TYPE`).
 - Automatic token acquisition and refresh using Axios interceptor.
@@ -27,4 +29,6 @@ All notable changes to this project will be documented in this file.
 - Corrected API endpoint paths for `getPipelines` and `getSources` based on testing.
 - Fixed internal "e is not iterable" error when handling certain 500 responses from `setPipelineConfig`.
 - Corrected `.env` path resolution logic for compiled vs. dev modes.
-- Fixed `npm run dev` script for ES Modules compatibility (`--loader ts-node/esm`). 
+- Fixed `npm run dev` script for ES Modules compatibility (`--loader ts-node/esm`).
+- Removed unused `FASTMCP_LOG_LEVEL` and `PORT` variables from `docs/configuration.md`.
+- Marked `src/server.ts` as executable in git to ensure correct `npx` execution.
