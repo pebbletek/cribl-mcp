@@ -50,8 +50,7 @@ The following tools are exposed by this server:
         *   `config` (object, required): The pipeline configuration payload expected by the API, typically structured as `{ id: 'pipeline-id', conf: { ... actual config ... } }`. Use `cribl_getPipelineConfig` to see the expected structure.
     *   Output: Success message or error details.
 *   `cribl_restartWorkerGroup`: Restarts workers within a specific Worker Group/Fleet.
-    *   Arguments:
-        *   `random_string` (string, required): A dummy string parameter required by the MCP framework for tools without specific arguments. Its value is ignored.
+    *   Arguments: None. This tool does not require any parameters.
     *   Output: Success message or error details.
     *   **Note:** The specific group restarted might depend on the client library's default group context. The underlying API call (`PATCH /api/v1/master/workers/restart`) might affect all workers; verify scope in your environment.
 

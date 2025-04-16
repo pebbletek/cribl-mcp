@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Updated documentation (`README.md`, `docs/usage.md`) to use the correct `npx` organization name (`@pebbletek/cribl-mcp` instead of `@pebble/cribl-mcp`) and remove outdated references to `fastmcp`.
 - Improved cross-linking between documentation files (`README.md`, `docs/overview.md`, `docs/usage.md`, `docs/configuration.md`).
 - Updated `README.md` and `docs/usage.md` with clearer instructions on running via `npx` and handling environment variables directly on the command line.
+- Updated documentation to reflect that `mcp_Cribl_cribl_restartWorkerGroup` no longer requires a dummy parameter and takes no arguments.
 
 
 

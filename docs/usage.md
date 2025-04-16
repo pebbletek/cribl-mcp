@@ -121,8 +121,6 @@ Here are the tools currently exposed by the Cribl MCP server:
 
 ### `mcp_Cribl_cribl_restartWorkerGroup`
 
-*   **Description**: Restarts the workers within a specific Worker Group/Fleet. *Note: This tool currently takes a dummy parameter required by the MCP framework for tools without specific parameters.*
-*   **Parameters**:
-    *   `random_string` (Required, `string`): A dummy string parameter. Its value does not matter.
-    *   *Implicit Context*: The restart applies to the default Worker Group/Fleet determined by the client library (needs clarification if it should take `groupName`).
-*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_restartWorkerGroup(random_string='abc')` 
+*   **Description**: Restarts the workers within a specific Worker Group/Fleet.
+*   **Parameters**: None. This tool does not require any arguments.
+*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_restartWorkerGroup()` 
