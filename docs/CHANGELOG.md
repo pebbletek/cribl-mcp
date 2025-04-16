@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Added shebang (`#!/usr/bin/env node`) to `src/server.ts` to ensure it can be executed directly.
+
+### Changed
+- Modified `build` script in `package.json` (`tsc && chmod +x dist/server.js`) to make the compiled `dist/server.js` executable after each build.
+
+
+## [0.1.4] - 2025-04-16
+### Changed
+- Updated `package.json` after it became corrupted.
+
 
 ## [0.1.2] - 2025-04-15
 ### Added
