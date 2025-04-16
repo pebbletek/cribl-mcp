@@ -3,6 +3,9 @@
 This server acts as a Model Context Protocol (MCP) bridge to interact with the Cribl REST API.
 It allows AI models or other MCP clients to query and manage Cribl configurations.
 
+See [`configuration.md`](./configuration.md) for how to set up environment variables and authentication.
+See [`usage.md`](./usage.md) for how to run the server and examples of using the tools.
+
 ## Authentication
 
 The server automatically acquires and manages API authentication tokens based on environment variables set in the `.env` file.

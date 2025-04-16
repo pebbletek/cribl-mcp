@@ -4,7 +4,12 @@ A Model Context Protocol (MCP) server that enables AI interactions with the Crib
 
 This server allows AI clients to discover and invoke data operations from a Cribl deployment, using standardised MCP tooling.
 
-**For detailed documentation on configuration, usage, and available tools, please see the [`docs/`](./docs/) directory.**
+**For detailed documentation, please see the [`docs/`](./docs/) directory. Here's a breakdown of the documentation files:**
+
+*   `README.md` (this file): Provides the highest-level introduction, quick start instructions, very basic examples, and links to the docs directory.
+*   [`docs/configuration.md`](./docs/configuration.md): Focuses specifically on the environment variables needed for configuration and explains the authentication modes. It's purely about setup.
+*   [`docs/usage.md`](./docs/usage.md): Focuses on how to run the server (via npx or local development commands) and how to configure an MCP client to connect to it. It provides conceptual examples of invoking the tools.
+*   [`docs/overview.md`](./docs/overview.md): Sits between the README and the specific config/usage docs. It details what the server offers in terms of authentication and, most importantly, provides a detailed reference guide to the available tools and their specific parameters/outputs, and future tools.
 
 ## Getting Started
 
@@ -13,7 +18,7 @@ You can either install and run locally, or execute instantly via `npx`:
 ### Quick Start with `npx`
 
 ```bash
-npx @pebble/cribl-mcp
+npx @pebbletek/cribl-mcp
 ```
 
 **Note:** Running `npx` requires essential environment variables (like `CRIBL_BASE_URL` and authentication details) to be set either in your environment or passed directly on the command line for the server to connect successfully.

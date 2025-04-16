@@ -130,3 +130,6 @@ dist/
 
 # Cursor
 .cursor/
+
+# Mac OS
+**/.DS_Store

@@ -2,6 +2,9 @@
 
 This document details the configuration options for the Cribl MCP server, primarily managed through environment variables.
 
+See [`overview.md`](./overview.md) for an overview of the server's capabilities and tool details.
+See [`usage.md`](./usage.md) for how to run the server using these configurations.
+
 ## Environment Variables
 
 Create a `.env` file in the project root (by copying `.env.example`) and populate the following variables based on your Cribl deployment and chosen authentication method.
