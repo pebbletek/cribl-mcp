@@ -13,23 +13,38 @@ This server allows AI clients to discover and invoke data operations from a Crib
 
 ## Getting Started
 
-You can either install and run locally, or execute instantly via `npx`:
+You can either install and run locally, or execute instantly via `npx`. `npx` saves you installing Git, dependencies, or any build tools. Both scenarios require you to have node later than version 16 installed:
+
+### Prerequisites
+
+To run this server ensure the following:
+
+- **Node.js** is installed (version 16 or later recommended)
+- **Internet access** is available (to fetch the MCP server package from npm)
+
+You can install Node.js from [https://nodejs.org](https://nodejs.org).
+
+To verify your setup:
+```bash
+node -v
+npx -v
+```
 
 ### Quick Start with `npx`
 
 ```bash
-npx @pebbletek/cribl-mcp
+CRIBL_BASE_URL=https://your.cribl.cloud.instance CRIBL_AUTH_TYPE=cloud CRIBL_CLIENT_ID=abc123 CRIBL_CLIENT_SECRET=secret npx @pebbletek/cribl-mcp
 ```
 
 **Note:** Running `npx` requires essential environment variables (like `CRIBL_BASE_URL` and authentication details) to be set either in your environment or passed directly on the command line for the server to connect successfully.
 
-See [`docs/usage.md`](./docs/usage.md) for advanced `npx` usage including configuring for your MCP client, and required variables.
+See [`docs/usage.md`](./docs/usage.md) for advanced `npx` usage configuration, including relevant JSON for your MCP client, and required variables.
 
 ### Local Development
 
-1.  Clone the repo:
+1.  Browse to a high-level folder where you'll store the code base (cloning will create the containing folder). Clone the repo:
     ```bash
-    git clone https://github.com/yourorg/cribl-mcp.git # Replace with your repo URL
+    git clone https://github.com/pebbletek/cribl-mcp.git
     cd cribl-mcp
     ```
 2.  Install dependencies:
@@ -40,6 +55,7 @@ See [`docs/usage.md`](./docs/usage.md) for advanced `npx` usage including config
     ```bash
     cp .env.example .env
     ```
+4. See usage.md > Local Development for running, building and starting the mcp server
 
 See [`docs/configuration.md`](./docs/configuration.md) for details on environment variables and authentication, and [`docs/usage.md`](./docs/usage.md) for running the server.
 

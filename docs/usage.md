@@ -10,7 +10,7 @@ By default, the server runs in standard input/output (stdio) mode, suitable for 
 
 ### Using `npx` (Recommended for Quick Use)
 
-The easiest way to run the server, without cloning a local copy from github, is by using `npx`:
+The easiest way to run the server, without requiring git, cloning a local copy from github, and install all dependencies, is by using `npx`:
 
 ```bash
 npx @pebbletek/cribl-mcp
