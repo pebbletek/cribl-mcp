@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+
+## [0.1.5] - 2024-06-21
 ### Added
 - Added shebang (`#!/usr/bin/env node`) to `src/server.ts` to ensure it can be executed directly.
 
@@ -13,7 +16,6 @@ All notable changes to this project will be documented in this file.
 - Improved cross-linking between documentation files (`README.md`, `docs/overview.md`, `docs/usage.md`, `docs/configuration.md`).
 - Updated `README.md` and `docs/usage.md` with clearer instructions on running via `npx` and handling environment variables directly on the command line.
 - Updated documentation to reflect that `mcp_Cribl_cribl_restartWorkerGroup` no longer requires a dummy parameter and takes no arguments.
-
 
 
 ## [0.1.4] - 2025-04-16
