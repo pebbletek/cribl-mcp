@@ -344,4 +344,63 @@ export async function restartWorkerGroup(): Promise<ClientResult<{ message: stri
         const errorMessage = handleApiError(error, context);
         return { success: false, error: errorMessage };
     }
+}
+
+export async function getSystemMetrics(
+    params?: {
+        filterExpr?: string | null;
+        metricNameFilter?: string | null;
+        earliest?: string | null;
+        latest?: string | null;
+        numBuckets?: number | null;
+        wp?: string | null;
+    }
+): Promise<ClientResult<string>> {
+    const context = `getSystemMetrics`;
+    const url = `/api/v1/system/metrics`;
+    console.error(`[stderr] Attempting API call: GET ${url} with params: ${JSON.stringify(params)}`);
+
+    // Prepare query parameters
+    const queryParams: Record<string, any> = {};
+    if (params?.filterExpr != null) queryParams.filterExpr = params.filterExpr;
+    if (params?.metricNameFilter != null) queryParams.metricNameFilter = params.metricNameFilter;
+    if (params?.earliest != null) queryParams.earliest = params.earliest;
+    if (params?.latest != null) queryParams.latest = params.latest;
+    if (params?.wp != null) queryParams.wp = params.wp;
+
+    // Default to 1 bucket if no parameters are provided to limit response size
+    const providedParamKeys = Object.keys(params || {}).filter(k => params?.[k as keyof typeof params] !== undefined && params?.[k as keyof typeof params] !== null);
+    if (providedParamKeys.length === 0) {
+        queryParams.numBuckets = 1;
+        console.error(`[stderr] No specific metrics parameters provided, defaulting to numBuckets=1`);
+    } else if (params?.numBuckets != null) {
+        queryParams.numBuckets = params.numBuckets;
+    }
+
+    try {
+        const response = await apiClient.get<string>(url, {
+            params: queryParams,
+            headers: {
+                ...apiClient.defaults.headers.common,
+                'Accept': 'text/plain' // Keep requesting plain text for now
+            },
+            responseType: 'text',
+        });
+        const responseDataString = typeof response.data === 'string' ? response.data : String(response.data);
+        return { success: true, data: responseDataString };
+    } catch (error) {
+        const errorMessage = handleApiError(error, context);
+        if (axios.isAxiosError(error) && error.response?.headers?.['content-type']?.includes('text/html')) {
+            try {
+                const htmlError = error.response.data as string;
+                const preMatch = htmlError.match(/<pre>([\s\S]*?)<\/pre>/i);
+                if (preMatch && preMatch[1]) {
+                    console.error(`[stderr] Extracted HTML error detail for ${context}: ${preMatch[1]}`);
+                }
+            } catch (htmlParseError) {
+                console.error(`[stderr] Failed to parse potential HTML error for ${context}: ${htmlParseError}`);
+            }
+        }
+        return { success: false, error: errorMessage };
+    }
 } 

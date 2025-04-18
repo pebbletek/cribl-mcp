@@ -47,4 +47,34 @@ CRIBL_CLIENT_SECRET=your_client_secret
 # Local Auth Credentials (only needed if CRIBL_AUTH_TYPE=local)
 CRIBL_USERNAME=
 CRIBL_PASSWORD=
-``` 
+```
+
+### Optional: MCP_DOTENV_PATH (custom `.env` location)
+
+In some workflows—especially when your MCP server is launched **by** a desktop client (Claude, Cursor, AnythingLLM, etc.)—it is convenient to keep your sensitive credentials in a separate file and simply _point_ the server at it.
+
+Set the environment variable `MCP_DOTENV_PATH` to the absolute path of the desired file and the Model‑Context‑Protocol SDK will load **that** file first, _before_ our own configuration code runs.  There are two common ways to do this:
+
+1.  **Inside an MCP client config** (recommended)
+    ```jsonc
+    {
+      "mcpServers": {
+        "cribl": {
+          "command": "npx",
+          "args": ["@pebbletek/cribl-mcp"],
+          "env": {
+            "MCP_DOTENV_PATH": "/full/path/to/cribl.env"
+          }
+        }
+      }
+    }
+    ```
+2.  **Via your shell** (if you run the server manually)
+    ```bash
+    MCP_DOTENV_PATH=/full/path/to/cribl.env npx @pebbletek/cribl-mcp
+    # OR, in *sh* shells
+    export MCP_DOTENV_PATH=/full/path/to/cribl.env
+    npm run dev
+    ```
+
+If `MCP_DOTENV_PATH` is **not** set, the server falls back to loading a `.env` file from the project root (as described above). 

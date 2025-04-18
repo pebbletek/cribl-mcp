@@ -9,7 +9,8 @@ import {
     setPipelineConfig,
     getPipelineConfig,
     listWorkerGroups,
-    restartWorkerGroup
+    restartWorkerGroup,
+    getSystemMetrics
 } from './api/criblClient.js';
 
 // Validate config on startup (errors are logged to stderr in config.ts)
@@ -308,6 +309,41 @@ server.tool(
         };
     }
 );
+
+// Define schema for getSystemMetrics with optional filtering parameters
+const GetSystemMetricsArgsShape = {
+    filterExpr: z.string().optional().nullable().describe('Optional: A JS expression to filter metrics (e.g., "model.pipeline === \'test\'" or "host == \'myhost\'").'),
+    metricNameFilter: z.string().optional().nullable().describe('Optional: Regex or array of metric names (e.g.,limit to "pipe.*" , "total.in_bytes", or "os.cpu.perc,os.mem.*").'),
+    earliest: z.string().optional().nullable().describe('Optional: Start time for the query (e.g., \'-15m\', \'2023-10-26T10:00:00Z\').'),
+    latest: z.string().optional().nullable().describe('Optional: End time for the query (e.g., \'now\', \'2023-10-26T10:15:00Z\').'),
+    numBuckets: z.number().int().optional().nullable().describe('Optional: The number of time buckets for aggregation.'),
+    wp: z.string().optional().nullable().describe('Optional: Worker process filter.'),
+}
+
+server.tool(
+    'cribl_getSystemMetrics',
+    'Retrieves system metrics from the Cribl deployment. \nIMPORTANT: To avoid excessively large responses, please use the optional parameters (filterExpr, metricNameFilter, earliest, latest, numBuckets, wp) to narrow down your query whenever possible. \nIf no parameters are provided, the server will default to fetching only the most recent data bucket (numBuckets=1) to prevent performance issues.',
+    GetSystemMetricsArgsShape,
+    async (args: ValidatedArgs<typeof GetSystemMetricsArgsShape>) => {
+        console.error(`[Tool Call] cribl_getSystemMetrics with args:`, args)
+
+        // Pass the validated args to the API client function
+        const result = await getSystemMetrics(args)
+
+        if (!result.success || typeof result.data !== 'string') {
+            console.error(`[Tool Error] cribl_getSystemMetrics for args ${JSON.stringify(args)}:`, result.error || 'Invalid data received')
+            return {
+                isError: true,
+                content: [{ type: 'text', text: `Error fetching system metrics: ${result.error || 'Unknown error'}` }],
+            }
+        }
+
+        console.error(`[Tool Success] cribl_getSystemMetrics: Fetched ${result.data.length} characters of metrics for args:`, args)
+        return {
+            content: [{ type: 'text', text: result.data }],
+        }
+    }
+)
 
 // --- Server Connection ---
 

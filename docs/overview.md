@@ -53,7 +53,16 @@ The following tools are exposed by this server:
     *   Arguments: None. This tool does not require any parameters.
     *   Output: Success message or error details.
     *   **Note:** The specific group restarted might depend on the client library's default group context. The underlying API call (`PATCH /api/v1/master/workers/restart`) might affect all workers; verify scope in your environment.
-
+*   `cribl_getSystemMetrics`: Retrieves system metrics from the Cribl deployment.
+    *   Arguments:
+        *   `filterExpr` (string, optional): A JS expression to filter metrics (e.g., "model.pipeline === 'test'", or "host == 'myhost'").
+        *   `metricNameFilter` (string, optional): Regex or array of metric names (e.g., limit to "pipe.*", "total.in_bytes", or "os.cpu.perc,os.mem.*").
+        *   `earliest` (string, optional): Start time (e.g., `'-15m'`).
+        *   `latest` (string, optional): End time (e.g., `'now'`).
+        *   `numBuckets` (number, optional): Number of time buckets for aggregation.
+        *   `wp` (string, optional): Worker process filter.
+    *   Output: Text string containing the metrics data. Format may vary (e.g., Prometheus exposition format).
+    *   **Note**: Use parameters to narrow scope. Defaults to `numBuckets=1` if no parameters are given.
 
 ## Future Enhancements
 
@@ -75,34 +84,4 @@ The following tools represent potential future capabilities for this MCP server,
     *   Description: Deploys the latest committed configuration to a specific worker group.
     *   Why: Enables full lifecycle management via MCP.
 
-*   **`cribl_getPipelineStats`**
-    *   Description: Retrieve real-time or recent metrics for a given pipeline (e.g., throughput, errors).
-    *   Why: Adds observability and supports feedback loops.
-
-*   **`cribl_listPacks`**
-    *   Description: Lists installed Cribl Packs (reusable processing logic).
-    *   Why: Provides visibility into shared assets.
-
-*   **`cribl_listRoutes`**
-    *   Description: Fetches all active Routes.
-    *   Why: Useful for understanding data flow.
-
-*   **`cribl_restartPipeline`**
-    *   Description: Restarts a specific pipeline without restarting the entire worker group.
-    *   Why: Minimises disruption for targeted fixes.
-
-*   **`cribl_getHealthStatus`**
-    *   Description: Returns overall instance health (CPU/memory usage, errors, uptime).
-    *   Why: Supports diagnostics and automated monitoring/alerting.
-
-*   **`cribl_listDestinations`**
-    *   Description: Enumerates all configured Destinations.
-    *   Why: Helps validate data routing and troubleshoot outputs.
-
-*   **`cribl_runSearch`**
-    *   Description: Executes a search query over recent data (if Cribl Search is enabled).
-    *   Why: Enables powerful diagnostics and AI-assisted analysis.
-
-*   **`cribl_clonePipeline`**
-    *   Description: Creates a new pipeline by cloning an existing one.
-    *   Why: Speeds up template-based workflows and testing variations. 
+*   **`cribl_listPacks`

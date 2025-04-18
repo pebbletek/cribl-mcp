@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Added shebang (`#!/usr/bin/env node`) to `src/server.ts` to ensure it can be executed directly.
+- Added `cribl_getPipelineStats` tool to retrieve stats for a specific pipeline in a worker group. This tool takes `groupName` (optional) and `pipelineId` (required) and returns real-time or recent metrics for the pipeline.
+- Documented support for `MCP_DOTENV_PATH` which allows specifying a custom `.env` file location. See `docs/configuration.md` and `docs/usage.md` for examples.
+- Documented running the server via `node dist/server.js` in `docs/usage.md`.
+- Added optional parameters (`filter`, `metrics`, `earliest`, `latest`, `buckets`) to the `cribl_getSystemMetrics` tool to allow filtering and scoping of metrics queries. 
+- Updated `cribl_getSystemMetrics` tool description to strongly recommend using parameters to limit response size and clarify that it defaults to `buckets=1` if no parameters are provided.
+
+### Changed
+- Modified `build` script in `package.json` (`tsc && chmod +x dist/server.js`) to make the compiled `dist/server.js` executable after each build.
+- Removed MacOS related files (.DS_Store) and updated .gitignore.
+- Updated documentation (`README.md`, `docs/usage.md`) to use the correct `npx` organization name (`@pebbletek/cribl-mcp` instead of `@pebble/cribl-mcp`) and remove outdated references to `fastmcp`.
+- Improved cross-linking between documentation files (`README.md`, `docs/overview.md`, `docs/usage.md`, `docs/configuration.md`).
+- Updated `README.md` and `docs/usage.md` with clearer instructions on running via `npx` and handling environment variables directly on the command line.
+- Updated documentation to reflect that `mcp_Cribl_cribl_restartWorkerGroup` no longer requires a dummy parameter and takes no arguments.
+- Removed `cribl_getPipelineStats` from the "Future Enhancements" section in `docs/overview.md` as `cribl_getSystemMetrics` covers this functionality.
+- Renamed `filter` parameter to `filterExpr` and added `wp` parameter to `cribl_getSystemMetrics` tool and documentation for consistency with Cribl API.
+- Updated cribl_getSystemMetrics tool and documentation to use official Cribl API parameter names: 'buckets' is now 'numBuckets', and 'metrics' is now 'metricNameFilter'.
+
 
 ## [0.1.5] - 2024-06-21
 ### Added
@@ -45,9 +64,4 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Resolved various TypeScript errors and MCP SDK signature mismatches during development.
-- Corrected API endpoint paths for `getPipelines` and `getSources` based on testing.
-- Fixed internal "e is not iterable" error when handling certain 500 responses from `setPipelineConfig`.
-- Corrected `.env` path resolution logic for compiled vs. dev modes.
-- Fixed `npm run dev` script for ES Modules compatibility (`--loader ts-node/esm`).
-- Removed unused `FASTMCP_LOG_LEVEL` and `PORT` variables from `docs/configuration.md`.
-- Marked `src/server.ts` as executable in git to ensure correct `npx` execution.
+- Corrected API endpoint paths for `

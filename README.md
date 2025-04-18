@@ -67,6 +67,7 @@ This server provides tools to interact with Cribl, including:
 *   Getting/Setting Pipeline configurations
 *   Getting Source configurations
 *   Restarting Worker Groups
+*   Querying System Metrics (with filtering)
 
 For a detailed list and usage instructions, see [`docs/usage.md`](./docs/usage.md).
 
