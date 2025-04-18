@@ -11,6 +11,10 @@ This server allows AI clients to discover and invoke data operations from a Crib
 *   [`docs/usage.md`](./docs/usage.md): Focuses on how to run the server (via npx or local development commands) and how to configure an MCP client to connect to it. It provides conceptual examples of invoking the tools.
 *   [`docs/overview.md`](./docs/overview.md): Sits between the README and the specific config/usage docs. It details what the server offers in terms of authentication and, most importantly, provides a detailed reference guide to the available tools and their specific parameters/outputs, and future tools.
 
+<a href="https://glama.ai/mcp/servers/@pebbletek/cribl-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@pebbletek/cribl-mcp/badge" alt="cribl-mcp MCP server" />
+</a>
+
 ## Getting Started
 
 You can either install and run locally, or execute instantly via `npx`. `npx` saves you installing Git, dependencies, or any build tools. Both scenarios require you to have node later than version 16 installed:
@@ -171,4 +175,3 @@ Once connected via an MCP client (like [Claude Desktop](https://claude.ai/downlo
 ## License
 
 MIT
-
