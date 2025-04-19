@@ -5,20 +5,24 @@ import { fileURLToPath } from 'url';
 // Determine the correct path to the .env file relative to the project root.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// Whether running from src or dist, the project root is one level up.
-const projectRoot = path.resolve(__dirname, '..');
-const envPath = path.resolve(projectRoot, '.env');
-
-// console.log(`[config.ts] Project Root calculated as: ${projectRoot}`); // Removed log
-// console.log(`[config.ts] Attempting to load .env file from: ${envPath}`); // Removed log
-
-dotenv.config({ path: envPath });
+// Determine how to load .env: support override via MCP_DOTENV_PATH or fallback to default search
+const dotenvPath = process.env.MCP_DOTENV_PATH;
+if (dotenvPath) {
+  console.error(`[config.ts Debug] Attempting to load .env from MCP_DOTENV_PATH: ${dotenvPath}`);
+  dotenv.config({ path: dotenvPath });
+} else {
+  console.error(`[config.ts Debug] MCP_DOTENV_PATH not set. Looking for .env in CWD: ${process.cwd()} and its parent directories`);
+  dotenv.config();
+}
 
 // --- Helper Functions ---
 function getEnvVariable(key: string, required = true): string | undefined {
     const value = process.env[key];
     if (!value && required) {
-        const errorMsg = `FATAL: Required environment variable ${key} is not set. Looked for .env at ${envPath}. Check your .env file exists in the project root (${projectRoot}) and the variable is defined.`;
+        const locationChecked = dotenvPath
+            ? `the path specified by MCP_DOTENV_PATH (${dotenvPath})`
+            : `the current directory (${process.cwd()}) or its parent directories`;
+        const errorMsg = `FATAL: Required environment variable ${key} is not set. Check your .env file exists in ${locationChecked} and the variable is defined.`;
         console.error(errorMsg);
         throw new Error(errorMsg);
     }

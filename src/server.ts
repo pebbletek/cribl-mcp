@@ -92,6 +92,7 @@ const ListWorkerGroupsArgsShape = {
 
 server.tool(
     'cribl_listWorkerGroups',
+    'Lists available worker groups in the Cribl deployment, optionally filtered by product type (stream, edge, search, or all).',
     ListWorkerGroupsArgsShape,
     async (args: ValidatedArgs<typeof ListWorkerGroupsArgsShape>) => {
         const { productType } = args;
@@ -130,6 +131,7 @@ const GetPipelinesArgsShape = {
 
 server.tool(
     'cribl_getPipelines',
+    'Fetches pipeline definitions in a specified worker group.',
     GetPipelinesArgsShape,
     async (args: ValidatedArgs<typeof GetPipelinesArgsShape>) => {
         console.error(`[Tool Call] cribl_getPipelines with args:`, args);
@@ -161,6 +163,7 @@ const GetSourcesArgsShape = {
 
 server.tool(
     'cribl_getSources',
+    'Fetches source configurations in a specified worker group.',
     GetSourcesArgsShape,
     async (args: ValidatedArgs<typeof GetSourcesArgsShape>) => { 
         console.error(`[Tool Call] cribl_getSources with args:`, args);
@@ -193,6 +196,7 @@ const GetPipelineConfigArgsShape = {
 
 server.tool(
     'cribl_getPipelineConfig',
+    'Retrieves full configuration JSON for a specified pipeline in a worker group.',
     GetPipelineConfigArgsShape,
     async (args: ValidatedArgs<typeof GetPipelineConfigArgsShape>) => {
         console.error(`[Tool Call] cribl_getPipelineConfig with args:`, args);
@@ -260,6 +264,7 @@ const SetPipelineConfigArgsShape = {
 
 server.tool(
     'cribl_setPipelineConfig',
+    'Applies a new configuration payload to a specified pipeline in a worker group.',
     SetPipelineConfigArgsShape,
     async (args: ValidatedArgs<typeof SetPipelineConfigArgsShape>) => {
         console.error(`[Tool Call] cribl_setPipelineConfig with args:`, args);
@@ -292,6 +297,7 @@ const RestartWorkerGroupArgsShape = {}; // No args needed
 
 server.tool(
     'cribl_restartWorkerGroup',
+    'Restarts all workers within the default or specified worker group.',
     RestartWorkerGroupArgsShape,
     async () => { // No args needed
         console.error(`[Tool Call] cribl_restartWorkerGroup`);
