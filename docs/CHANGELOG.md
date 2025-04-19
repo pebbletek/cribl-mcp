@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] - 2025-04-19
+### Fixed
+- Re-aligned versioning with npm registry to correct earlier tagging inconsistency
+- Cleaned up publishing flow to ensure only scoped version (`@pebbletek/cribl-mcp`) is used going forward
+
+### Added
+- GitHub release notes
+- Deprecation notice for unscoped `cribl-mcp` package
+
 ## [0.1.10] - 2025-04-19
 ### Changed
 - Reverted .env loading logic to support MCP_DOTENV_PATH override and fallback to default search
