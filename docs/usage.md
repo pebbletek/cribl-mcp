@@ -172,4 +172,4 @@ Here are the tools currently exposed by the Cribl MCP server:
     *   `latest` (Optional, `string`): End time for the query (e.g., `'now'`, `'2023-10-26T10:15:00Z'`).
     *   `numBuckets` (Optional, `number`): The number of time buckets for aggregation.
     *   `wp` (Optional, `string`): Worker process filter.
-*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_getSystemMetrics(metricNameFilter='os.cpu.*', earliest='-5m', numBuckets=5)` 
+*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_getSystemMetrics(metricNameFilter='os.cpu.*', earliest='-5m')` 
