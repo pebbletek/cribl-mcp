@@ -1,6 +1,6 @@
 {
   "name": "@pebbletek/cribl-mcp",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "MCP Server for Cribl API Interaction",
   "main": "dist/server.js",
   "bin": {
