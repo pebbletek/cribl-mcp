@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+
+## [0.1.12] - 2025-05-07
 ### Added
 - `cribl_versionControl`: Detects if version control is enabled.
 - `cribl_commitPipeline`: Commits staged pipeline config changes.
@@ -12,8 +15,6 @@ All notable changes to this project will be documented in this file.
 - Restored placeholder description for `groupName` in all Cribl tool schemas by reverting to `z.string().optional()`, removing `nullable()` and default values so the inspector UI shows the description as placeholder.
 - Use `z.preprocess` to map `null` to `undefined` for optional `groupName` argument, ensuring Inspector's blank input triggers fallback while showing placeholder text.
 - Use `z.preprocess` to map `null`, `undefined`, or empty string to default `'stream'` for `productType` argument in `cribl_listWorkerGroups`, ensuring Inspector's blank input uses the default.
-
-
 
 ## [0.1.11] - 2025-04-19
 ### Fixed
