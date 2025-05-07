@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 // Determine the correct path to the .env file relative to the project root.
 const __filename = fileURLToPath(import.meta.url);
@@ -14,6 +15,10 @@ if (dotenvPath) {
   console.error(`[config.ts Debug] MCP_DOTENV_PATH not set. Looking for .env in CWD: ${process.cwd()} and its parent directories`);
   dotenv.config();
 }
+
+// Allow reading package.json
+const requirePkg = createRequire(import.meta.url);
+const pkg = requirePkg('../package.json');
 
 // --- Helper Functions ---
 function getEnvVariable(key: string, required = true): string | undefined {
@@ -85,8 +90,8 @@ function loadConfig(): Config {
     }
 
     const serverConfig = {
-        name: 'cribl-mcp-bridge',
-        version: '0.1.0', // Consider reading from package.json?
+        name: 'cribl',
+        version: pkg.version,
     };
 
     console.error(`[config.ts] Loaded config: AuthType=${authType}, BaseURL=${baseUrl}`); // Log basic info to stderr

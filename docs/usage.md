@@ -163,7 +163,7 @@ Here are the tools currently exposed by the Cribl MCP server:
 ### `mcp_Cribl_cribl_getSystemMetrics`
 
 *   **Description**: Retrieves system metrics from the Cribl deployment. 
-    *   **Important**: To avoid excessively large responses, please use the optional parameters (`filterExpr`, `metrics`, `earliest`, `latest`, `buckets`, `wp`) to narrow down your query whenever possible. 
+    *   **Important**: To avoid excessively large responses, please use the optional parameters (`filterExpr`, `metricNameFilter`, `earliest`, `latest`, `numBuckets`, `wp`) to narrow down your query whenever possible. 
     *   If no parameters are provided, the server will default to fetching only the most recent data bucket (`buckets=1`) to prevent performance issues.
 *   **Parameters**:
     *   `filterExpr` (Optional, `string`): A JS expression to filter metrics (e.g., `"model.pipeline === 'test'"` or `"host == 'myhost'"`). 
@@ -172,4 +172,22 @@ Here are the tools currently exposed by the Cribl MCP server:
     *   `latest` (Optional, `string`): End time for the query (e.g., `'now'`, `'2023-10-26T10:15:00Z'`).
     *   `numBuckets` (Optional, `number`): The number of time buckets for aggregation.
     *   `wp` (Optional, `string`): Worker process filter.
-*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_getSystemMetrics(metricNameFilter='os.cpu.*', earliest='-5m')` 
+*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_getSystemMetrics(metricNameFilter='os.cpu.*', earliest='-5m')`
+
+### `mcp_Cribl_cribl_versionControl`
+*   **Description**: Detects if version control (git) is enabled on the Cribl instance and whether a remote repository URL is configured. Use this to chekc whether committing and deploying is needed.
+*   **Parameters**: None.
+*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_versionControl()`
+
+### `mcp_Cribl_cribl_commitPipeline`
+*   **Description**: Commits staged configuration changes to version control. Use the commit ID returned to deploy the changes.
+*   **Parameters**:
+    *   `message` (Required, string): Commit message describing the changes.
+*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_commitPipeline(message='Initial pipeline commit')`
+
+### `mcp_Cribl_cribl_deployPipeline`
+*   **Description**: Deploys a specific committed configuration version to a Worker Group and returns the list of resulting ConfigGroup objects from Cribl.
+*   **Parameters**:
+    *   `groupName` (Optional, string): The name of the Worker Group/Fleet. If omitted, defaults to the sole Stream group if only one exists.
+    *   `version` (Required, string): The commit ID to deploy (e.g., `7e1e260d...`).
+*   **Example Invocation (Conceptual)**: `mcp_Cribl_cribl_deployPipeline(groupName='default', version='7e1e260d7910f3e24ec1074a4df866e783cddf03')` 

@@ -63,25 +63,51 @@ The following tools are exposed by this server:
         *   `wp` (string, optional): Worker process filter.
     *   Output: Text string containing the metrics data. Format may vary (e.g., Prometheus exposition format).
     *   **Note**: Use parameters to narrow scope. Defaults to `numBuckets=1` if no parameters are given.
+*   `cribl_versionControl`:
+    *   Arguments: None.
+    *   Description: Detects if version control is enabled on the Cribl instance and whether a remote repository URL is configured.
+*   `cribl_commitPipeline`:
+    *   Arguments:
+        *   `message` (string, required): Commit message describing the staged changes.
+    *   Description: Commits staged configuration changes to version control and returns detailed commit info (branch, commit ID, summary, files changed).
+*   `cribl_deployPipeline`:
+    *   Arguments:
+        *   `groupName` (string, optional): The name of the Worker Group/Fleet. If omitted, defaults to attempting to use Cribl Stream and if only one group exists for Stream, it will use that sole group.
+        *   `version` – Commit ID to deploy.
+    *   Description: Deploys a specific commit (version) and predecessor commits to a Worker Group.
 
 ## Future Enhancements
 
 The following tools represent potential future capabilities for this MCP server, based on common Cribl workflows:
 
-*   **`cribl_testPipelineConfig`**
-    *   Description: Validates a pipeline config before deployment.
-    *   Why: Prevents pushing broken or invalid configurations, especially valuable in automated workflows.
+*   **`cribl_getPipelineStats`**
+    *   Description: Retrieve real-time or recent metrics for a given pipeline (e.g., throughput, errors).
+    *   Why: Adds observability and supports feedback loops.
 
-*   **`cribl_versionControl`**
-    *   Description: Detects if version control is enabled.
-    *   Why: Determines if commit and deploy steps are required.
+*   **`cribl_listPacks`**
+    *   Description: Lists installed Cribl Packs (reusable processing logic).
+    *   Why: Provides visibility into shared assets.
 
-*   **`cribl_commitPipeline`**
-    *   Description: Commits staged configuration changes.
-    *   Why: Part of the standard version control workflow.
+*   **`cribl_listRoutes`**
+    *   Description: Fetches all active Routes.
+    *   Why: Useful for understanding data flow.
 
-*   **`cribl_deployPipeline`**
-    *   Description: Deploys the latest committed configuration to a specific worker group.
-    *   Why: Enables full lifecycle management via MCP.
+*   **`cribl_restartPipeline`**
+    *   Description: Restarts a specific pipeline without restarting the entire worker group.
+    *   Why: Minimises disruption for targeted fixes.
 
-*   **`cribl_listPacks`
+*   **`cribl_getHealthStatus`**
+    *   Description: Returns overall instance health (CPU/memory usage, errors, uptime).
+    *   Why: Supports diagnostics and automated monitoring/alerting.
+
+*   **`cribl_listDestinations`**
+    *   Description: Enumerates all configured Destinations.
+    *   Why: Helps validate data routing and troubleshoot outputs.
+
+*   **`cribl_runSearch`**
+    *   Description: Executes a search query over recent data (if Cribl Search is enabled).
+    *   Why: Enables powerful diagnostics and AI-assisted analysis.
+
+*   **`cribl_clonePipeline`**
+    *   Description: Creates a new pipeline by cloning an existing one.
+    *   Why: Speeds up template-based workflows and testing variations.

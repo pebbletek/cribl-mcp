@@ -53,6 +53,89 @@ interface CriblWorkerGroup {
     // Add other relevant fields like tags, etc. if needed based on API response
 }
 
+// Define more specific response types for version control
+interface VersionControlItem {
+    versioning: boolean;       // Whether version control is enabled
+    remote: string;            // Remote repository URL, if configured
+    branch?: string;           // Current branch name
+    status?: {                 // Git status information
+        staged: any[];         // Staged files information
+        unstaged: any[];       // Unstaged changes
+        untracked: any[];      // Untracked files
+    };
+    lastCommit?: {             // Information about the last commit
+        id: string;            // Commit hash
+        date: string;          // Commit date
+        message: string;       // Commit message
+        author: string;        // Author of the commit
+    };
+    [key: string]: any;        // Allow other properties
+}
+
+// Define commit response interface
+interface CommitResult {
+    branch: string;            // Branch name (e.g., "master")
+    commit: string;            // Commit ID (hash)
+    root: boolean;             // Whether this is a root commit
+    summary: {                 // Commit summary information
+        added?: number;        // Number of files added
+        deleted?: number;      // Number of files deleted
+        modified?: number;     // Number of files modified
+        [key: string]: any;    // Allow other summary properties
+    };
+    files: {                   // Information about changed files
+        added?: string[];      // Files added in this commit
+        deleted?: string[];    // Files deleted in this commit
+        modified?: string[];   // Files modified in this commit
+        [key: string]: any;    // Allow other file properties
+    };
+    message?: string;          // Commit message (if available in response)
+    [key: string]: any;        // Allow other properties
+}
+
+// Define deployment result interface
+interface DeploymentResult {
+    deployed: boolean;         // Whether deployment was successful
+    workerCount?: number;      // Number of workers the deployment was sent to
+    started?: string;          // Timestamp when deployment started
+    completed?: string;        // Timestamp when deployment completed
+    count?: number;            // Number of items affected
+    files?: string[];          // List of files deployed
+    version?: string;          // Version/commit that was deployed
+    groupName?: string;        // Worker group name
+    status?: string;           // Status message (e.g., "success", "in-progress", "failed")
+    error?: string;            // Error message if deployment failed
+    message?: string;          // Additional status message
+    [key: string]: any;        // Allow other properties
+}
+
+// Insert new ConfigGroup and DeployResponse interfaces below existing interfaces (after CommitResult interface)
+interface ConfigGroup {
+    id: string;
+    name?: string;
+    description?: string;
+    configVersion?: string;
+    workerCount?: number;
+    isFleet?: boolean;
+    isSearch?: boolean;
+    deployingWorkerCount?: number;
+    incompatibleWorkerCount?: number;
+    tags?: string;
+    streamtags?: string[];
+    git?: {
+        commit?: string;
+        localChanges?: number;
+        log?: any[];
+    };
+    // Allow extra fields from API we haven't modelled yet
+    [key: string]: any;
+}
+
+interface DeployResponse {
+    count: number;
+    items: ConfigGroup[];
+}
+
 // --- Token Management State ---
 let accessToken: string | null = null;
 let tokenExpiresAt: number = 0; // Store expiry time as timestamp (milliseconds)
@@ -401,6 +484,109 @@ export async function getSystemMetrics(
                 console.error(`[stderr] Failed to parse potential HTML error for ${context}: ${htmlParseError}`);
             }
         }
+        return { success: false, error: errorMessage };
+    }
+}
+
+// Detects if version control is enabled on the Cribl instance, and whether a remote repo is set up.
+export async function versionControl(): Promise<ClientResult<VersionControlItem>> {
+    const context = 'versionControl';
+    const url = '/api/v1/version/info';
+    console.error(`[stderr] Attempting API call: GET ${url}`);
+    try {
+        // API returns items array with version control status details
+        const response = await apiClient.get<{ items: VersionControlItem[], count: number }>(url);
+        
+        if (response.data?.items && Array.isArray(response.data.items) && response.data.items.length > 0) {
+            // Return complete information from the first item
+            const versionInfo = response.data.items[0];
+            console.error(`[stderr] ${context}: Version control enabled=${versionInfo.versioning}, remote=${versionInfo.remote || 'none'}, branch=${versionInfo.branch || 'unknown'}`);
+            return { success: true, data: versionInfo };
+        } else {
+            console.error(`[stderr] ${context}: Unexpected response structure or empty items array:`, response.data);
+            return { 
+                success: false, 
+                error: 'Unexpected response structure from version/info endpoint.' 
+            };
+        }
+    } catch (error) {
+        const errorMessage = handleApiError(error, context);
+        return { success: false, error: errorMessage };
+    }
+}
+
+export async function commitPipeline(
+    message: string // Required commit message
+): Promise<ClientResult<CommitResult | null>> {
+    const context = `commitPipeline`;
+    if (!message || message.trim().length === 0) {
+        return { success: false, error: 'Commit message is required for commitPipeline.' };
+    }
+    const url = `/api/v1/version/commit`;
+    console.error(`[stderr] Attempting API call: POST ${url} with message: "${message}"`);
+    try {
+        const payload = { message: message };
+        // API returns items array with commit details
+        const response = await apiClient.post<{ items: CommitResult[], count: number }>(url, payload);
+        
+        if (response.data?.items && 
+            Array.isArray(response.data.items) && 
+            response.data.items.length > 0) {
+            
+            // Get full commit details from the first item
+            const commitResult = response.data.items[0];
+            
+            // Verify we have at least the commit ID
+            if (commitResult.commit) {
+                // Log comprehensive commit information
+                console.error(`[stderr] ${context}: Commit successful - ID: ${commitResult.commit}, Branch: ${commitResult.branch}`);
+                if (commitResult.summary) {
+                    console.error(`[stderr] ${context}: Files changed - Added: ${commitResult.summary.added || 0}, Modified: ${commitResult.summary.modified || 0}, Deleted: ${commitResult.summary.deleted || 0}`);
+                }
+                
+                // Return full commit details
+                return { success: true, data: commitResult };
+            }
+        }
+        
+        // If we get here, we couldn't find valid commit info in the response
+        console.error(`[stderr] ${context}: Unable to extract valid commit information from response. Data:`, response.data);
+        return { 
+            success: false, 
+            error: 'Unable to extract valid commit information from response.',
+            data: null
+        };
+    } catch (error) {
+        const errorMessage = handleApiError(error, context);
+        return { success: false, error: errorMessage, data: null };
+    }
+}
+
+export async function deployPipeline(
+    groupName: string,
+    version: string // Commit ID to deploy
+): Promise<ClientResult<DeployResponse>> {
+    const context = `deployPipeline (Group: ${groupName}, Version: ${version})`;
+    if (!groupName) return { success: false, error: 'Group name is required for deployPipeline.' };
+    if (!version) return { success: false, error: 'Version (commit ID) is required for deployPipeline.' };
+    
+    const url = `/api/v1/master/groups/${groupName}/deploy`;
+    console.error(`[stderr] Attempting API call: PATCH ${url} with version: "${version}"`);
+    try {
+        const payload = { version };
+        // Use PATCH per API docs and expect DeployResponse
+        const response = await apiClient.patch<DeployResponse>(url, payload);
+        const data = response.data;
+
+        if (data && Array.isArray(data.items) && data.items.length > 0) {
+            console.error(`[stderr] ${context}: Deployment API returned ${data.items.length} ConfigGroup items (count=${data.count}).`);
+            return { success: true, data };
+        }
+        const msg = 'Deployment API returned empty items array.';
+        console.error(`[stderr] ${context}: ${msg}`);
+        return { success: false, error: msg };
+    } catch (error) {
+        const errorMessage = handleApiError(error, context);
         return { success: false, error: errorMessage };
     }
 } 

@@ -1,5 +1,8 @@
 # Cribl MCP Server
 
+[![npm version](https://img.shields.io/npm/v/@pebbletek/cribl-mcp)](https://www.npmjs.com/package/@pebbletek/cribl-mcp)
+[![License](https://img.shields.io/github/license/pebbletek/cribl-mcp)](https://github.com/pebbletek/cribl-mcp/blob/main/LICENSE)
+
 A Model Context Protocol (MCP) server that enables AI interactions with the Cribl API.
 
 This server allows AI clients to discover and invoke data operations from a Cribl deployment, using standardised MCP tooling.

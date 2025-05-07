@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Added
+- `cribl_versionControl`: Detects if version control is enabled.
+- `cribl_commitPipeline`: Commits staged pipeline config changes.
+- `cribl_deployPipeline`: Deploys the latest committed configuration to a worker group.
+
+### Changed
+- Restored placeholder description for `groupName` in all Cribl tool schemas by reverting to `z.string().optional()`, removing `nullable()` and default values so the inspector UI shows the description as placeholder.
+- Use `z.preprocess` to map `null` to `undefined` for optional `groupName` argument, ensuring Inspector's blank input triggers fallback while showing placeholder text.
+- Use `z.preprocess` to map `null`, `undefined`, or empty string to default `'stream'` for `productType` argument in `cribl_listWorkerGroups`, ensuring Inspector's blank input uses the default.
+
+
+
 ## [0.1.11] - 2025-04-19
 ### Fixed
 - Re-aligned versioning with npm registry to correct earlier tagging inconsistency
@@ -56,19 +69,4 @@ All notable changes to this project will be documented in this file.
 - `cribl_listWorkerGroups` tool to list groups, with optional `productType` filtering (stream, edge, search, all).
 - `cribl_getPipelineConfig` tool to fetch configuration for a specific pipeline.
 - Automatic Worker Group selection: If `groupName` is omitted for relevant tools, attempts to use the sole 'stream' group if only one exists.
-- More robust error handling in API client (`handleApiError`) to better manage non-JSON responses and provide clearer messages.
-- Enhanced error messages for missing/invalid `groupName` and `pipelineId`, including listing available options where possible.
-
-### Changed
-- Refactored API client (`criblClient.ts`) to use dynamic authentication.
-- Modified `getPipelines`, `getSources`, `setPipelineConfig`, `getPipelineConfig` tools to operate within a Worker Group context (`/api/v1/m/{groupName}/...`).
-- Made `groupName` argument optional for `getPipelines`, `getSources`, `setPipelineConfig`, `getPipelineConfig`.
-- Updated `setPipelineConfig` payload structure and argument description based on testing.
-- Updated `restartWorkerGroup` tool to target `PATCH /api/v1/master/workers/restart` (no arguments) based on documentation, with warnings about scope.
-- Removed internal `console.log` calls interfering with MCP stdio protocol; routed debug/error logs to `stderr`.
-- Updated Zod schema descriptions for clarity.
-- Updated README and documentation (`docs/overview.md`) to reflect all changes.
-
-### Fixed
-- Resolved various TypeScript errors and MCP SDK signature mismatches during development.
-- Corrected API endpoint paths for `
+- More robust error handling in API client (`

@@ -10,7 +10,10 @@ import {
     getPipelineConfig,
     listWorkerGroups,
     restartWorkerGroup,
-    getSystemMetrics
+    getSystemMetrics,
+    versionControl,
+    commitPipeline,
+    deployPipeline
 } from './api/criblClient.js';
 
 // Validate config on startup (errors are logged to stderr in config.ts)
@@ -34,8 +37,16 @@ const server = new McpServer({
 // Helper type for validated args based on Zod schema shape
 type ValidatedArgs<T extends ZodRawShape> = z.infer<z.ZodObject<T>>;
 
-// Helper function for group name resolution
-async function resolveGroupName(providedGroupName: string | undefined, defaultProductType: 'stream' | 'edge' | 'search' = 'stream'): Promise<{ groupName?: string; error?: string }> {
+// Reusable schema for optional groupName: preprocess null to undefined, validate as optional string
+const GroupNameArgSchema = z.preprocess(
+  (val) => (val === null ? undefined : val), // Map null to undefined before validation
+  z.string().optional() // Then validate as optional string
+).describe(
+  "Optional: The name of the Worker Group/Fleet. If omitted, defaults to attempting to use Cribl Stream and if only one group exists for Stream, it will use that sole group."
+);
+
+// Helper function for group name resolution; expects string or undefined
+async function resolveGroupName(providedGroupName?: string, defaultProductType: 'stream' | 'edge' | 'search' = 'stream'): Promise<{ groupName?: string; error?: string }> {
     const listResult = await listWorkerGroups(); // Get all groups first for validation
     if (!listResult.success || !listResult.data) {
         const errorMsg = `Failed to list worker groups: ${listResult.error || 'Unknown error'}`;
@@ -86,8 +97,10 @@ async function resolveGroupName(providedGroupName: string | undefined, defaultPr
 
 // Define schema for listWorkerGroups arguments
 const ListWorkerGroupsArgsShape = {
-    productType: z.enum(['stream', 'edge', 'search', 'all']).optional().default('stream')
-        .describe('Filter groups by product type (stream, edge, search, all). Defaults to stream.'),
+    productType: z.preprocess(
+        (val) => (val === null || val === undefined || val === '' ? 'stream' : val), // Map null/undefined/empty to default
+        z.enum(['stream', 'edge', 'search', 'all'])
+    ).describe('Filter groups by product type (stream, edge, search, all). Defaults to stream.'),
 };
 
 server.tool(
@@ -126,7 +139,7 @@ server.tool(
 
 // Define schema for getPipelines arguments (groupName optional)
 const GetPipelinesArgsShape = {
-    groupName: z.string().optional().describe("Optional: The name of the Worker Group/Fleet. If omitted, defaults to attempting to use Cribl Stream and if only one group exists for Stream, it will use that sole group."),
+    groupName: GroupNameArgSchema,
 };
 
 server.tool(
@@ -135,7 +148,7 @@ server.tool(
     GetPipelinesArgsShape,
     async (args: ValidatedArgs<typeof GetPipelinesArgsShape>) => {
         console.error(`[Tool Call] cribl_getPipelines with args:`, args);
-        const groupResolution = await resolveGroupName(args.groupName);
+        const groupResolution = await resolveGroupName(args.groupName); // Pass directly, preprocess handles null
         if (groupResolution.error || !groupResolution.groupName) {
             return { isError: true, content: [{ type: 'text', text: groupResolution.error || 'Could not determine group name.' }] };
         }
@@ -158,7 +171,7 @@ server.tool(
 
 // Define schema for getSources arguments (groupName optional)
 const GetSourcesArgsShape = {
-    groupName: z.string().optional().describe("Optional: The name of the Worker Group/Fleet. If omitted, defaults to attempting to use Cribl Stream and if only one group exists for Stream, it will use that sole group."),
+    groupName: GroupNameArgSchema,
 };
 
 server.tool(
@@ -167,7 +180,7 @@ server.tool(
     GetSourcesArgsShape,
     async (args: ValidatedArgs<typeof GetSourcesArgsShape>) => { 
         console.error(`[Tool Call] cribl_getSources with args:`, args);
-        const groupResolution = await resolveGroupName(args.groupName);
+        const groupResolution = await resolveGroupName(args.groupName); // Pass directly, preprocess handles null
         if (groupResolution.error || !groupResolution.groupName) {
             return { isError: true, content: [{ type: 'text', text: groupResolution.error || 'Could not determine group name.' }] };
         }
@@ -190,7 +203,7 @@ server.tool(
 
 // Define schema for getPipelineConfig arguments (groupName optional)
 const GetPipelineConfigArgsShape = {
-    groupName: z.string().optional().describe("Optional: The name of the Worker Group/Fleet. If omitted, defaults to attempting to use Cribl Stream and if only one group exists for Stream, it will use that sole group."),
+    groupName: GroupNameArgSchema,
     pipelineId: z.string().describe('The ID of the pipeline to retrieve configuration for.'),
 };
 
@@ -200,7 +213,7 @@ server.tool(
     GetPipelineConfigArgsShape,
     async (args: ValidatedArgs<typeof GetPipelineConfigArgsShape>) => {
         console.error(`[Tool Call] cribl_getPipelineConfig with args:`, args);
-        const groupResolution = await resolveGroupName(args.groupName);
+        const groupResolution = await resolveGroupName(args.groupName); // Pass directly, preprocess handles null
          if (groupResolution.error || !groupResolution.groupName) {
             return { isError: true, content: [{ type: 'text', text: groupResolution.error || 'Could not determine group name.' }] };
         }
@@ -257,9 +270,9 @@ server.tool(
 
 // Define schema for setPipelineConfig arguments (groupName optional)
 const SetPipelineConfigArgsShape = {
-    groupName: z.string().optional().describe("Optional: The name of the Worker Group/Fleet. If omitted, defaults to attempting to use Cribl Stream and if only one group exists for Stream, it will use that sole group."),
-    pipelineId: z.string().describe('The ID of the pipeline to configure.'),
-    config: z.object({}).passthrough().describe("The pipeline configuration payload expected by the API, typically structured as { id: 'pipeline-id', conf: { ... actual config ... } }. Note: 'pipelineId' argument is used for URL, but API might require it in body too."),
+    groupName: GroupNameArgSchema,
+    pipelineId: z.string().describe('The ID of the pipeline to set configuration for.'),
+    config: z.object({}).passthrough().describe('Pipeline configuration payload to validate.'),
 };
 
 server.tool(
@@ -268,7 +281,7 @@ server.tool(
     SetPipelineConfigArgsShape,
     async (args: ValidatedArgs<typeof SetPipelineConfigArgsShape>) => {
         console.error(`[Tool Call] cribl_setPipelineConfig with args:`, args);
-        const groupResolution = await resolveGroupName(args.groupName);
+        const groupResolution = await resolveGroupName(args.groupName); // Pass directly, preprocess handles null
          if (groupResolution.error || !groupResolution.groupName) {
             return { isError: true, content: [{ type: 'text', text: groupResolution.error || 'Could not determine group name.' }] };
         }
@@ -347,6 +360,142 @@ server.tool(
         console.error(`[Tool Success] cribl_getSystemMetrics: Fetched ${result.data.length} characters of metrics for args:`, args)
         return {
             content: [{ type: 'text', text: result.data }],
+        }
+    }
+)
+
+// Define schema for cribl_versionControl arguments (none required)
+const VersionControlArgsShape = {}
+
+server.tool(
+    'cribl_versionControl',
+    'Detects if version control (git) is enabled on the Cribl instance and whether a remote repository URL is configured.',
+    VersionControlArgsShape,
+    async () => {
+        console.error(`[Tool Call] cribl_versionControl`)
+        const result = await versionControl()
+        if (!result.success || !result.data) {
+            console.error(`[Tool Error] cribl_versionControl:`, result.error)
+            return { isError: true, content: [{ type: 'text', text: `Error detecting version control: ${result.error}` }] }
+        }
+        
+        // Extract key information from the result
+        const versionInfo = result.data;
+        const isEnabled = versionInfo.versioning === true;
+        const remoteUrl = versionInfo.remote || 'None configured';
+        const branch = versionInfo.branch || 'unknown';
+        
+        // Log detailed version control status
+        console.error(`[Tool Success] cribl_versionControl: enabled=${isEnabled}, remoteUrl=${remoteUrl}, branch=${branch}`);
+        
+        // Log additional git details if available
+        if (versionInfo.lastCommit) {
+            console.error(`[Tool Success] cribl_versionControl: lastCommit=${versionInfo.lastCommit.id}, message="${versionInfo.lastCommit.message}", author=${versionInfo.lastCommit.author}`);
+        }
+        
+        if (versionInfo.status) {
+            const hasChanges = (
+                (versionInfo.status.staged && versionInfo.status.staged.length > 0) || 
+                (versionInfo.status.unstaged && versionInfo.status.unstaged.length > 0) || 
+                (versionInfo.status.untracked && versionInfo.status.untracked.length > 0)
+            );
+            
+            console.error(`[Tool Success] cribl_versionControl: hasChanges=${hasChanges}, staged=${versionInfo.status.staged?.length || 0}, unstaged=${versionInfo.status.unstaged?.length || 0}, untracked=${versionInfo.status.untracked?.length || 0}`);
+        }
+        
+        // Return full details for LLM use
+        return { 
+            content: [{ 
+                type: 'text', 
+                text: JSON.stringify(versionInfo, null, 2)
+            }] 
+        }
+    }
+)
+
+// Define schema for cribl_commitPipeline arguments
+const CommitPipelineArgsShape = {
+    message: z.string().min(1).describe('The commit message.')
+}
+
+server.tool(
+    'cribl_commitPipeline',
+    'Commits staged pipeline config changes to version control with a message. Returns detailed commit information including branch, commit ID, and summary of changed files.',
+    CommitPipelineArgsShape,
+    async (args: ValidatedArgs<typeof CommitPipelineArgsShape>) => {
+        console.error(`[Tool Call] cribl_commitPipeline with args:`, args)
+        
+        // Call client function
+        const result = await commitPipeline(args.message) 
+        
+        // Check for success (defined by having valid data with a commit ID)
+        if (!result.success || !result.data || !result.data.commit) {
+            console.error(`[Tool Error] cribl_commitPipeline:`, result.error || 'No commit information returned.')
+            return { 
+                isError: true, 
+                content: [{ 
+                    type: 'text', 
+                    text: `Error committing pipeline changes: ${result.error || 'No commit information returned.'}`
+                }] 
+            }
+        }
+
+        // Extract commit ID and other useful information
+        const { commit: commitId, branch, summary, files } = result.data;
+        
+        // Log success with key details
+        console.error(`[Tool Success] cribl_commitPipeline: commitId=${commitId}, branch=${branch}`);
+        
+        // Log file summary if available
+        if (summary) {
+            console.error(`[Tool Success] cribl_commitPipeline: files changed - added=${summary.added || 0}, modified=${summary.modified || 0}, deleted=${summary.deleted || 0}`);
+        }
+        
+        // Return formatted commit result with details for LLM use
+        return { 
+            content: [{ 
+                type: 'text', 
+                text: JSON.stringify({
+                    // Rename commit ID for clarity at LLM level
+                    commitId,
+                    // Include full result data for LLM to use as needed
+                    ...result.data
+                }, null, 2)
+            }] 
+        }
+    }
+)
+
+// Define schema for cribl_deployPipeline arguments
+const DeployPipelineArgsShape = {
+    groupName: GroupNameArgSchema,
+    version: z.string().min(1).describe('The commit ID (version) to deploy.')
+};
+
+server.tool(
+    'cribl_deployPipeline',
+    'Deploys a specific committed configuration version to a worker group. Returns the list of ConfigGroup objects Cribl provides.',
+    DeployPipelineArgsShape,
+    async (args: ValidatedArgs<typeof DeployPipelineArgsShape>) => {
+        console.error(`[Tool Call] cribl_deployPipeline with args:`, args)
+        // Resolve group name (optional arg)
+        const groupResolution = await resolveGroupName(args.groupName)
+        if (groupResolution.error || !groupResolution.groupName) {
+            return { isError: true, content: [{ type: 'text', text: groupResolution.error || 'Could not determine group name.' }] }
+        }
+        const groupName = groupResolution.groupName
+        const { version } = args
+
+        const result = await deployPipeline(groupName, version)
+        if (!result.success || !result.data) {
+            console.error(`[Tool Error] cribl_deployPipeline:`, result.error || 'Unknown error')
+            return { isError: true, content: [{ type: 'text', text: `Error deploying version ${version}: ${result.error}` }] }
+        }
+
+        // Success: expose full JSON result including all ConfigGroup fields
+        console.error(`[Tool Success] cribl_deployPipeline: Deployed commit ${version} to group ${groupName}. ConfigGroups returned: ${result.data.count}`)
+        return {
+            content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }]
         }
     }
 )
