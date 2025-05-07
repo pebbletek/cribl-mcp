@@ -1,5 +1,7 @@
 # Cribl MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@pebbletek/cribl-mcp)](https://smithery.ai/server/@pebbletek/cribl-mcp)
+
 A Model Context Protocol (MCP) server that enables AI interactions with the Cribl API.
 
 This server allows AI clients to discover and invoke data operations from a Cribl deployment, using standardised MCP tooling.
@@ -14,6 +16,14 @@ This server allows AI clients to discover and invoke data operations from a Crib
 ## Getting Started
 
 You can either install and run locally, or execute instantly via `npx`. `npx` saves you installing Git, dependencies, or any build tools. Both scenarios require you to have node later than version 16 installed:
+
+### Installing via Smithery
+
+To install Cribl API Interaction Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@pebbletek/cribl-mcp):
+
+```bash
+npx -y @smithery/cli install @pebbletek/cribl-mcp --client claude
+```
 
 ### Prerequisites
 
@@ -171,4 +181,3 @@ Once connected via an MCP client (like [Claude Desktop](https://claude.ai/downlo
 ## License
 
 MIT
-

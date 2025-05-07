@@ -1,0 +1,53 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - criblBaseUrl
+      - criblAuthType
+    properties:
+      criblBaseUrl:
+        type: string
+        description: Base URL for Cribl API
+      criblAuthType:
+        type: string
+        description: "Authentication mode: 'cloud' or 'local'"
+      criblClientId:
+        type: string
+        description: Client ID for Cribl.Cloud (required if authType is cloud)
+      criblClientSecret:
+        type: string
+        description: Client Secret for Cribl.Cloud (required if authType is cloud)
+      criblUsername:
+        type: string
+        description: Username for local Cribl (required if authType is local)
+      criblPassword:
+        type: string
+        description: Password for local Cribl (required if authType is local)
+      dotenvPath:
+        type: string
+        description: Optional path to .env file for environment loading
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => {
+      const env = {
+        CRIBL_BASE_URL: config.criblBaseUrl,
+        CRIBL_AUTH_TYPE: config.criblAuthType
+      };
+      if (config.criblClientId) env.CRIBL_CLIENT_ID = config.criblClientId;
+      if (config.criblClientSecret) env.CRIBL_CLIENT_SECRET = config.criblClientSecret;
+      if (config.criblUsername) env.CRIBL_USERNAME = config.criblUsername;
+      if (config.criblPassword) env.CRIBL_PASSWORD = config.criblPassword;
+      if (config.dotenvPath) env.MCP_DOTENV_PATH = config.dotenvPath;
+      return { command: 'node', args: ['dist/server.js'], env };
+    }
+  exampleConfig:
+    criblBaseUrl: https://example.cribl.cloud
+    criblAuthType: cloud
+    criblClientId: exampleClientId
+    criblClientSecret: exampleClientSecret
+    dotenvPath: /path/to/cribl.env
