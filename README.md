@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/pebbletek-cribl-mcp-badge.png)](https://mseep.ai/app/pebbletek-cribl-mcp)
+
 # Cribl MCP Server
 
 [![npm version](https://img.shields.io/npm/v/@pebbletek/cribl-mcp)](https://www.npmjs.com/package/@pebbletek/cribl-mcp)
